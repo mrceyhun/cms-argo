@@ -4,7 +4,7 @@ metadata:
   generateName: condor-cpu-eff-
   namespace: argo
 spec:
-  schedule: "50 */2 * * *"
+  schedule: "47 * * * *"
   timezone: "Europe/Berlin"         # Default to local machine timezone
   startingDeadlineSeconds: 60       # Run after 1 minute if previous fails
   concurrencyPolicy: "Replace"      # Default to "Allow"
@@ -39,7 +39,7 @@ spec:
             - -c
             - >-
                 source $VIRTUAL_ENV/bin/activate &&
-                /bin/bash $WDIR/CMSSpark/bin/k8s_condor_cpu_efficiency.sh $CMSMONIT_WWW 30 > /proc/1/fd/1 2>&1
+                /bin/bash $WDIR/CMSSpark/bin/k8s_condor_cpu_efficiency.sh $CMSMONIT_WWW 1 > /proc/1/fd/1 2>&1
           env:
           - name: MY_NODE_NAME
             valueFrom:

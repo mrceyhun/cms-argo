@@ -17,12 +17,12 @@ We want to manage our cron/acron jobs in one place and monitor them easily. Argo
 `kubectl apply -f install_argo.yaml -n argo`
 **Argo UI URL**: [http://{K8S_NODE_NAME}.cern.ch:32746/](http://{K8S_NODE_NAME}.cern.ch:32746/)
 
-### Install argo cli
+### install argo cli
 Reference:  https://github.com/argoproj/argo-workflows/releases/tag/v3.2.3
 
 [P.S.] After this point, we assume argo cli is installed in the current directory as argo-linux-amd64.
 
-### Submit example workflow: condor-cpu-eff cron job
+### submit example workflow: condor-cpu-eff cron job
 P.S. We use Argo [CronWorkflows|https://argoproj.github.io/argo-workflows/cron-workflows/] to schedule our workflow.
 
 First of all, we need to define NodePorts for condor-cpu-eff, since these ports are required to connect Spark cluster.
@@ -33,14 +33,22 @@ Now we can submit our condor-cpu-eff cron workflow.
 
 `./argo-linux-amd64 cron create cronwf/condor_cpu_eff_wf.yaml -n argo --strict=false`
 
-#### Check workflow with cli
+#### check workflow with cli
 Reference: https://argoproj.github.io/argo-workflows/quick-start/
 
 `./argo-linux-amd64 list -n argo`
 `./argo-linux-amd64 get -n argo @latest`
 `./argo-linux-amd64 logs -n argo @latest`
 
-To delete with CLI: `./argo-linux-amd64 cron delete condor-cpu-eff-mz98l -n argo`
+### deletions
+
+To delete a workflow with CLI: 
+`./argo-linux-amd64 cron delete condor-cpu-eff-mz98l -n argo`
+
+Delete Argo installation completely:
+`kubectl delete -f install_argo.yaml -n argo`
+`kubectl delete -f svc/condor_cpu_eff_svc.yaml`
+`kubectl delete ns argo`
 
 ## References
 - [Very detailed comparison of wf orchestration tools])[https://medium.com/arthur-engineering/picking-a-kubernetes-orchestrator-airflow-argo-and-prefect-83539ecc69b]
