@@ -25,6 +25,10 @@ chmod +x argo
 echo ">>>>>>> CLI argo is insalled successfully"
 echo ">>>>>>> Applying services and creating workflows"
 
+#-----------------------------------------------
+
+# [TODO] Create secrets
+
 # Apply services in argo ns
 kubectl apply $(ls svc/*.yaml | awk ' { print " -f " $1 " -n argo" } ')
 
