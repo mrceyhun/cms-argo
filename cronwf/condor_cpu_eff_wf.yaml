@@ -1,0 +1,72 @@
+apiVersion: argoproj.io/v1alpha1
+kind: CronWorkflow
+metadata:
+  generateName: condor-cpu-eff-
+  namespace: argo
+spec:
+  schedule: "50 */2 * * *"
+  timezone: "Europe/Berlin"         # Default to local machine timezone
+  startingDeadlineSeconds: 60       # Run after 1 minute if previous fails
+  concurrencyPolicy: "Replace"      # Default to "Allow"
+  successfulJobsHistoryLimit: 1000  # Default 3
+  failedJobsHistoryLimit: 1000      # Default 1
+  suspend: false                    # Set to "true" to suspend scheduling
+  workflowSpec:
+    entrypoint: condor-cpu-eff
+    serviceAccountName: argo
+    volumes:
+      - name: condor-cpu-eff-secrets
+        secret:
+          secretName: condor-cpu-eff-secrets
+      - name: eos
+        hostPath:
+          path: /var/eos
+    securityContext:
+      seLinuxOptions:
+        type: "spc_t"
+    selector:
+      matchLabels:
+        app: condor-cpu-eff
+    templates:
+      - name: condor-cpu-eff
+        metadata:
+          labels:
+            app: condor-cpu-eff
+        container:
+          image: mrceyhun/condor_cpu_eff:latest
+          command: ["/bin/bash"]
+          args:
+            - -c
+            - >-
+                source $VIRTUAL_ENV/bin/activate &&
+                /bin/bash $WDIR/CMSSpark/bin/k8s_condor_cpu_efficiency.sh $CMSMONIT_WWW 30 > /proc/1/fd/1 2>&1
+          env:
+          - name: MY_NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+          - name: CMSMONIT_WWW # Define output path here
+            value: /eos/user/c/cuzunogl/www/argo
+          lifecycle:
+            postStart:
+              exec:
+                command: ["/bin/sh", "-c", "export > /etc/environment"]
+          ports:
+            - containerPort: 31234 # spark.driver.port
+              name: port-0
+            - containerPort: 31235 # spark.driver.blockManager.port
+              name: port-1
+          resources:
+            requests:
+              cpu: 500m
+              memory: 500Mi
+            limits:
+              cpu: 2000m
+              memory: 2000Mi
+          volumeMounts:
+            - name: condor-cpu-eff-secrets
+              mountPath: /etc/condor-cpu-eff
+              readOnly: true
+            - name: eos # EOS access
+              mountPath: /eos
+              mountPropagation: HostToContainer
