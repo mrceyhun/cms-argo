@@ -1,0 +1,20 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: condor-cpu-eff-test
+  namespace: argo
+spec:
+  selector:
+    app: condor-cpu-eff-test
+  type: NodePort
+  ports:
+  - name: port-0 # spark.driver.port
+    nodePort: 31294
+    port: 31294
+    protocol: TCP
+    targetPort: 31294
+  - name: port-1 # spark.driver.blockManager.port
+    nodePort: 31295
+    port: 31295
+    protocol: TCP
+    targetPort: 31295

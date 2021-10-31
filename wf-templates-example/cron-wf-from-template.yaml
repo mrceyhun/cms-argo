@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: CronWorkflow
+metadata:
+  generateName: condor-cpu-eff-test-
+  namespace: argo
+spec:
+  schedule: "20 21 * * *"
+  timezone: "Europe/Berlin"         # Default to local machine timezone
+  startingDeadlineSeconds: 60
+  concurrencyPolicy: "Replace"      # Default to "Allow"
+  successfulJobsHistoryLimit: 10    # Default 3
+  failedJobsHistoryLimit: 10         # Default 1
+  suspend: false                    # Set to "true" to suspend scheduling
+  workflowSpec:
+    serviceAccountName: argo
+    entrypoint: start                                # First template to run
+    templates:
+      - name: start
+        steps:
+          - - name: step-1                            # First step to run
+              templateRef:
+                name: wf-template-condor-cpu-eff      
+                template: condor-cpu-eff-test         # WorkflowTemplate.templates.name
+        # - - name: step-2                            # 2 dashes means this step will run after above step
+        #     templateRef:
+        #       name: wf-template-condor-cpu-eff
+        #       template: condor-cpu-eff-test
+        # We can run parallel steps too..

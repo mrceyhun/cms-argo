@@ -1,0 +1,59 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: wf-template-condor-cpu-eff
+  namespace: argo
+spec:
+  templates:
+    - name: condor-cpu-eff-test
+      metadata:
+        labels:
+          app: condor-cpu-eff-test
+      volumes:
+        - name: condor-cpu-eff-secrets
+          secret:
+            secretName: condor-cpu-eff-secrets
+        - name: eos
+          hostPath:
+            path: /var/eos
+      securityContext:
+        seLinuxOptions:
+          type: "spc_t"
+      container:
+        image: mrceyhun/condor_cpu_eff:latest
+        command: ["/bin/bash"]
+        args:
+          - -c
+          - >-
+              source $VIRTUAL_ENV/bin/activate &&
+              sleep 600
+        env:
+        - name: MY_NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: CMSMONIT_WWW # Define output path here
+          value: /eos/user/c/cuzunogl/www/argo
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/sh", "-c", "export > /etc/environment"]
+        ports:
+          - containerPort: 31234 # spark.driver.port
+            name: port-0
+          - containerPort: 31235 # spark.driver.blockManager.port
+            name: port-1
+        resources:
+          requests:
+            cpu: 500m
+            memory: 500Mi
+          limits:
+            cpu: 2000m
+            memory: 2000Mi
+        volumeMounts:
+          - name: condor-cpu-eff-secrets
+            mountPath: /etc/condor-cpu-eff
+            readOnly: true
+          - name: eos # EOS access
+            mountPath: /eos
+            mountPropagation: HostToContainer
