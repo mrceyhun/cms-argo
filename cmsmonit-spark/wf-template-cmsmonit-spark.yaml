@@ -1,0 +1,60 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: wf-template-cmsmonit-spark
+  namespace: argo
+spec:
+  templates:
+    - name: cmsmonit-spark
+      metadata:
+        labels:
+          app: cmsmonit-spark
+      inputs:
+        parameters:
+          - name: bash-run-command
+      volumes:
+        - name: cmsmonit-spark-secrets
+          secret:
+            secretName: cmsmonit-spark-secrets
+        - name: eos
+          hostPath:
+            path: /var/eos
+      securityContext:
+        seLinuxOptions:
+          type: "spc_t"
+      container:
+        image: mrceyhun/cmsmon-spark:latest
+        command: ["/bin/bash"]
+        args:
+          - -c
+          - >-
+              source $VIRTUAL_ENV/bin/activate &&
+              sleep 600
+        env:
+        - name: MY_NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/sh", "-c", "export > /etc/environment"]
+        ports:
+          - containerPort: 31234 # spark.driver.port
+            name: port-0
+          - containerPort: 31235 # spark.driver.blockManager.port
+            name: port-1
+        resources:
+          requests:
+            cpu: 500m
+            memory: 500Mi
+          limits:
+            cpu: 2000m
+            memory: 2000Mi
+        volumeMounts:
+          - name: cmsmonit-spark-secrets
+            mountPath: /etc/condor-cpu-eff
+            readOnly: true
+          - name: eos # EOS access
+            mountPath: /eos
+            mountPropagation: HostToContainer

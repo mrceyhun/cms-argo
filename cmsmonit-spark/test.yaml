@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: condor-cpu-eff-
+spec:
+  serviceAccountName: argo
+  entrypoint: first
+  templates:
+  - name: first
+    steps:
+    - - name: condor-cpu-eff
+        arguments:
+          parameters:
+          - name: bash-run-command
+            value: "echo test && sleep 900"
+        templateRef:
+          name: wf-template-cmsmonit-spark
+          template: cmsmonit-spark
+
