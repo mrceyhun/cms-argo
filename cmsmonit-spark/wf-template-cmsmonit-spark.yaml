@@ -24,12 +24,11 @@ spec:
           type: "spc_t"
       container:
         image: mrceyhun/cmsmon-spark:latest
-        command: ["/bin/bash"]
+        command:
+          - /bin/bash
+          - '-c'
         args:
-          - -c
-          - >-
-              source $VIRTUAL_ENV/bin/activate &&
-              sleep 600
+          - '{{inputs.parameters.bash-run-command}}'
         env:
         - name: MY_NODE_NAME
           valueFrom:
