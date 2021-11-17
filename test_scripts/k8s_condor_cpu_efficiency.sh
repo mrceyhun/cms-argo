@@ -85,11 +85,12 @@ spark_confs=(
 OUTPUT_DIR="${MAIN_OUTPUT_DIR}/cpu_eff"
 CMS_TYPES=("test")
 
+# "$currentDir/../src/python/CMSSpark/condor_cpu_efficiency.py" \
+
 for type in "${CMS_TYPES[@]}"; do
   SUBFOLDER=$(echo "$type" | sed -e 's/[^[:alnum:]]/-/g' | tr -s '-' | tr '[:upper:]' '[:lower:]')
   echo Starting spark jobs for cpu_eff_outlier=0, folder: "$OUTPUT_DIR", CMS_TYPE: "$SUBFOLDER"
   $spark_submit --master yarn "${spark_confs[@]}" \
-  #  "$currentDir/../src/python/CMSSpark/condor_cpu_efficiency.py" \
     "$WDIR/CMSSpark/src/python/CMSSpark/condor_cpu_efficiency.py" \
     --cms_type "$type" \
     --output_folder "$OUTPUT_DIR/$SUBFOLDER" \
