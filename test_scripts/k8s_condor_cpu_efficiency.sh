@@ -63,9 +63,10 @@ if [ -z "$(pgrep crond)" ]; then
   crond -n &
 fi
 
-currentDir=$(
-  cd "$(dirname "$0")" && pwd
-)
+#currentDir=$(
+#  cd "$(dirname "$0")" && pwd
+#)
+
 
 spark_submit=/usr/hdp/spark-2.4/bin/spark-submit
 spark_confs=(
@@ -82,15 +83,14 @@ spark_confs=(
 
 # cpu_eff
 OUTPUT_DIR="${MAIN_OUTPUT_DIR}/cpu_eff"
-# cpu_eff_outlier
-OUTPUT_DIR_OUTLIER="${OUTPUT_DIR}_outlier"
 CMS_TYPES=("test")
 
 for type in "${CMS_TYPES[@]}"; do
   SUBFOLDER=$(echo "$type" | sed -e 's/[^[:alnum:]]/-/g' | tr -s '-' | tr '[:upper:]' '[:lower:]')
   echo Starting spark jobs for cpu_eff_outlier=0, folder: "$OUTPUT_DIR", CMS_TYPE: "$SUBFOLDER"
   $spark_submit --master yarn "${spark_confs[@]}" \
-    "$currentDir/../src/python/CMSSpark/condor_cpu_efficiency.py" \
+  #  "$currentDir/../src/python/CMSSpark/condor_cpu_efficiency.py" \
+    "$WDIR/CMSSpark/src/python/CMSSpark/condor_cpu_efficiency.py" \
     --cms_type "$type" \
     --output_folder "$OUTPUT_DIR/$SUBFOLDER" \
     --last_n_days "$LAST_N_DAYS" \

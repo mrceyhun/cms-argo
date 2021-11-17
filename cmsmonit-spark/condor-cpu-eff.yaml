@@ -15,14 +15,17 @@ spec:
     serviceAccountName: argo
     entrypoint: first
     templates:
-    - name: first
-      steps:
-      - - name: condor-cpu-eff
-          arguments:
-            parameters:
-            - name: bash-run-command
-              value: "source $VIRTUAL_ENV/bin/activate && /bin/bash $WDIR/CMSSpark/bin/test.sh /eos/user/c/cuzunogl/www/argo-test 1 > /proc/1/fd/1 2>&1"
-          templateRef:
-            name: wf-template-cmsmonit-spark
-            template: cmsmonit-spark
-
+      - name: first
+        steps:
+          - - name: condor-cpu-eff
+              arguments:
+                parameters:
+                  - name: bash-run-command
+                    #value: "source $VIRTUAL_ENV/bin/activate && /bin/bash $WDIR/CMSSpark/bin/test.sh /eos/user/c/cuzunogl/www/argo-test 1 > /proc/1/fd/1 2>&1"
+                    value: >
+                      cd $WDIR && git clone https://github.com/mrceyhun/cms-argo.git &&
+                      source $VIRTUAL_ENV/bin/activate &&
+                      /bin/bash $WDIR/cms-argo/test_scripts/k8s_condor_cpu_efficiency.sh /eos/user/c/cuzunogl/www/argo-test 31234 31235 1
+              templateRef:
+                name: wf-template-cmsmonit-spark
+                template: cmsmonit-spark
