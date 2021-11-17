@@ -30,5 +30,3 @@ RUN yum -y update && \
     source $VIRTUAL_ENV/bin/activate && \
     pip install pandas pyspark click && \
     git clone https://github.com/dmwm/CMSSpark.git
-
-COPY k8s_condor_cpu_efficiency.sh $WDIR/CMSSpark/bin/test.sh
