@@ -4,7 +4,7 @@ metadata:
   generateName: condor-cpu-eff-
   namespace: argo
 spec:
-  schedule: "41 23 * * *"
+  schedule: "21 19 * * *"
   timezone: "Europe/Berlin"         # Default to local machine timezone
   startingDeadlineSeconds: 60
   concurrencyPolicy: "Replace"      # Default to "Allow"
